@@ -54,16 +54,51 @@ router.get('/emprestimo', (req, res) => {
 
 // editar usuario
 router.put('/:id_usuario', (req, res) => {
-    const {id_usuario} = req.params;
-    const {nome, email, senha, perfil} = req.body;
+    const { id_usuario } = req.params;
+    const { nome, email, senha, perfil } = req.body;
 
     db.query('update usuario set nome = ?, email = ?, senha = ?, perfil = ? where id_usuario = ?', [nome, email, senha, perfil], (err, result) => {
-        if(err){
-            return res.status(500).json({message: 'Erro interno do servidor'});
+        if (err) {
+            return res.status(500).json({ message: 'Erro interno do servidor' });
         }
-        if(result.affectedRows === 0){
-            res.status(404).json({message: 'Usuario não encontrado'});
+        if (result.affectedRows === 0) {
+            res.status(404).json({ message: 'Usuario não encontrado' });
         }
-        res.status(200).json({id:Number(id_usuario), nome, email, perfil});
+        res.status(200).json({ id_usuario: Number(id_usuario), nome, email, perfil });
     });
 });
+
+//Editar livro
+
+router.put('/:id_livro', (req, res) => {
+    const { id_livro } = req.params;
+    const { titulo, autor, ano_publicacao, quantidade_disponivel } = req.body;
+
+    db.query('update livro set titulo = ?, autor = ?, ano_publicacao = ?, quantidade_disponivel = ? where id_livro = ?', [titulo, autor, ano_publicacao, quantidade_disponivel], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erro interno do servidor' });
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).json({ message: 'Livro não encontrado' });
+        }
+        res.status(200).json({ id_livro: Number(id_livro), titulo, autor, ano_publicacao, quantidade_disponivel });
+    });
+});
+
+// 
+
+router.put('/:id_emprestimo', (req, res) => {
+    const { id_emprestimo } = req.params;
+    const { livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo } = req.body;
+
+    db.query('update livro set livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucoa_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? where id_emprestimo', [livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erro interno do servidor' });
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).json({ message: 'Livro não encontrado' });
+        }
+        res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo });
+    });
+});
+
