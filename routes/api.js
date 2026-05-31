@@ -4,7 +4,7 @@ const router = express.Router(); //
 
 const db = rquire('../db'); // Conecta ao banco de dados
 
-// ------------------------ GET ----------------------------------------------------------------------------------------------------------
+// ------------------------ ADICIONAR ----------------------------------------------------------------------------------------------------------
 
 // Rota para cadastro de usuário
 router.get('/cadastroUser', (req, res) => {
@@ -50,7 +50,7 @@ router.get('/emprestimo', (req, res) => {
         });
 });
 
-// ------------------------------------------------- PUT ----------------------------------------------------------------------------------------
+// ------------------------------------------------- EDITAR ----------------------------------------------------------------------------------------
 
 // editar usuario
 router.put('/:id_usuario', (req, res) => {
@@ -102,3 +102,31 @@ router.put('/:id_emprestimo', (req, res) => {
     });
 });
 
+// ----------------------------------------------------------- LISTAR -------------------------------------------------------------------------
+
+router.get('/listarUsuarios', (req, res) => {
+    db.query('select * from usuario', (err, results) => {
+        if(err){
+            return res.status(500).json({message: 'Erro interno do servidor'});
+        }
+        res.status(200).json(results)
+    })
+});
+
+router.get('/listarLivros', (req, res) => {
+    db.query('select * from livro', (err, results) => {
+        if(err){
+            return res.status(500).json({message: 'Erro interno do servidor'})
+        }
+        res.status(200).json(results)
+    });
+});
+
+router.get('/listarEmprestimos', (req, res) => {
+    db.query('select * from emprestimo', (err, results) => {
+        if(err){
+            return res.status(500).json({message: 'Erro interno do servidor'})
+        }
+        res.status(200).json(results)
+    })
+})
