@@ -1,18 +1,15 @@
-const express = require('express'); // const router = express.Router();
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
 
-const router = express.Router(); // 
+// ------------------------ ADICIONAR ------------------------------------------
 
-const db = rquire('../db'); // Conecta ao banco de dados
-
-// ------------------------ ADICIONAR ----------------------------------------------------------------------------------------------------------
-
-// Rota para cadastro de usuário
-router.get('/cadastroUser', (req, res) => {
+router.post('/cadastroUser', (req, res) => {
     const { nome, email, senha, perfil } = req.body;
-    db.query('insert into usuario (nome, email, senha, perfil) values (? , ? , ?, ?', [nome, email, senha, perfil],
+    db.query('INSERT INTO usuario (nome, email, senha, perfil) VALUES (?, ?, ?, ?)', [nome, email, senha, perfil],
         (err, result) => {
             if (err) {
-                return res.status(500).json({ error: 'Erro interno do servidor' })
+                return res.status(500).json({ error: 'Erro interno do servidor' });
             }
             res.status(201).json({
                 message: 'Usuario cadastrado com sucesso', id: result.insertId, nome, email, perfil
@@ -20,150 +17,141 @@ router.get('/cadastroUser', (req, res) => {
         });
 });
 
-// Cadastrar livros
-router.get('/cadastroLivro', (req, res) => {
+router.post('/cadastroLivro', (req, res) => {
     const { titulo, autor, ano_publicacao, quantidade_disponivel } = req.body;
-    db.query('insert into livro (titulo, autor, ano_publicacao, quantidade_disponivel) values (?, ?, ?, ?', [titulo, autor, ano_publicacao, quantidade_disponivel],
+    db.query('INSERT INTO livro (titulo, autor, ano_publicacao, quantidade_disponivel) VALUES (?, ?, ?, ?)', [titulo, autor, ano_publicacao, quantidade_disponivel],
         (err, result) => {
             if (err) {
-                return res.status(500).json({ error: 'Erro interno do servidor' })
+                return res.status(500).json({ error: 'Erro interno do servidor' });
             }
             res.status(201).json({
-                message: 'Livro cadastrrado com sucesso', id: result.insertId, titulo, autor, ano_publicacao, quantidade_disponivel
-            });
-        });
-
-});
-
-// Criar emprestimo
-router.get('/emprestimo', (req, res) => {
-    const { livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo } = req.body;
-    db.query('insert into emprestimo (livro_id, usuario_id, data_emprestimo, dat_devolucao_prevista, data_devolucao_real, status_emprestimo) values (? , ?, ?, ?, ?, ?) ', [livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo],
-        (err, result) => {
-            if (err) {
-                return res.status(500).json({ error: 'Erro interno do servidor' })
-
-            }
-            res.status(201).json({
-                message: 'Emprestomo feito com sucesso', id: result.insertId, livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo
+                message: 'Livro cadastrado com sucesso', id: result.insertId, titulo, autor, ano_publicacao, quantidade_disponivel
             });
         });
 });
 
-// ------------------------------------------------- EDITAR ----------------------------------------------------------------------------------------
+router.post('/emprestimo', (req, res) => {
+    const { livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo } = req.body;
+    db.query('INSERT INTO emprestimo (livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo) VALUES (?, ?, ?, ?, ?, ?)', [livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            res.status(201).json({
+                message: 'Emprestimo feito com sucesso', id: result.insertId, livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo
+            });
+        });
+});
 
-// editar usuario
-router.put('/:id_usuario', (req, res) => {
+// ------------------------------------------------- EDITAR --------------------
+
+router.put('/usuario/:id_usuario', (req, res) => {
     const { id_usuario } = req.params;
     const { nome, email, senha, perfil } = req.body;
 
-    db.query('update usuario set nome = ?, email = ?, senha = ?, perfil = ? where id_usuario = ?', [nome, email, senha, perfil], (err, result) => {
+    db.query('UPDATE usuario SET nome = ?, email = ?, senha = ?, perfil = ? WHERE id_usuario = ?', [nome, email, senha, perfil, id_usuario], (err, result) => {
         if (err) {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'Usuario não encontrado' });
+            return res.status(404).json({ error: 'Usuario não encontrado' });
         }
         res.status(200).json({ id_usuario: Number(id_usuario), nome, email, perfil });
     });
 });
 
-//Editar livro
-
-router.put('/:id_livro', (req, res) => {
+router.put('/livro/:id_livro', (req, res) => {
     const { id_livro } = req.params;
     const { titulo, autor, ano_publicacao, quantidade_disponivel } = req.body;
 
-    db.query('update livro set titulo = ?, autor = ?, ano_publicacao = ?, quantidade_disponivel = ? where id_livro = ?', [titulo, autor, ano_publicacao, quantidade_disponivel], (err, result) => {
+    db.query('UPDATE livro SET titulo = ?, autor = ?, ano_publicacao = ?, quantidade_disponivel = ? WHERE id_livro = ?', [titulo, autor, ano_publicacao, quantidade_disponivel, id_livro], (err, result) => {
         if (err) {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'Livro não encontrado' });
+            return res.status(404).json({ error: 'Livro não encontrado' });
         }
         res.status(200).json({ id_livro: Number(id_livro), titulo, autor, ano_publicacao, quantidade_disponivel });
     });
 });
 
-// 
-
-router.put('/:id_emprestimo', (req, res) => {
+router.put('/emprestimo/:id_emprestimo', (req, res) => {
     const { id_emprestimo } = req.params;
-    const { livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo } = req.body;
+    const { livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo } = req.body;
 
-    db.query('update livro set livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucoa_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? where id_emprestimo', [livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo], (err, result) => {
+    db.query('UPDATE emprestimo SET livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucao_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? WHERE id_emprestimo = ?', [livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, id_emprestimo], (err, result) => {
         if (err) {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'Livro não encontrado' });
+            return res.status(404).json({ error: 'Emprestimo não encontrado' });
         }
-        res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo });
+        res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo });
     });
 });
 
-// ----------------------------------------------------------- LISTAR -------------------------------------------------------------------------
+// ----------------------------------------------------------- LISTAR ----------
 
 router.get('/listarUsuarios', (req, res) => {
-    db.query('select * from usuario', (err, results) => {
+    db.query('SELECT * FROM usuario', (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
-        res.status(200).json(results)
-    })
+        res.status(200).json(results);
+    });
 });
 
 router.get('/listarLivros', (req, res) => {
-    db.query('select * from livro', (err, results) => {
+    db.query('SELECT * FROM livro', (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Erro interno do servidor' })
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
-        res.status(200).json(results)
+        res.status(200).json(results);
     });
 });
 
 router.get('/listarEmprestimos', (req, res) => {
-    db.query('select * from emprestimo', (err, results) => {
+    db.query('SELECT * FROM emprestimo', (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Erro interno do servidor' })
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
-        res.status(200).json(results)
-    })
-})
+        res.status(200).json(results);
+    });
+});
 
-//------------------------------------------------------DELETAR---------------------------------------------------------
+// ------------------------------------------------------DELETAR---------------
 
-
-router.delete('/:id_usuario', (res, req) => {
+router.delete('/usuario/:id_usuario', (req, res) => {
     const { id_usuario } = req.params;
-    db.query('delete from users where id_usuario = ?', [id_usuario],
+    db.query('DELETE FROM usuario WHERE id_usuario = ?', [id_usuario],
         (err) => {
             if (err) {
                 return res.status(500).json({ error: 'Erro interno do servidor' });
             }
-            res.sendStatus(204).json({ message: 'Deletado do banco' })
+            res.sendStatus(204);
         });
 });
 
-router.delete('/:id_livro', (res, req) => {
+router.delete('/livro/:id_livro', (req, res) => {
     const { id_livro } = req.params;
-    db.query('delte from livro where id_livro = ?', [id_livro],
+    db.query('DELETE FROM livro WHERE id_livro = ?', [id_livro],
         (err) => {
             if (err) {
                 return res.status(500).json({ error: 'Erro interno do servidor' });
             }
-            res.sendStatus(204).json({ message: 'Deletado do banco' })
-        });
-
-})
-
-router.delete('/:id_emprestimo', (res, req) => {
-    const {id_emprestimo} = req.params;
-    db.query('delete from emprestimo = ? ', [id_emprestimo],
-        (err) =>{
-            if(err){
-                return res.status(500).json({error: 'Erro interno do servidor'});
-            }
-            res.sendStatus(204).json({message: 'Deletado doo banco'})
+            res.sendStatus(204);
         });
 });
+
+router.delete('/emprestimo/:id_emprestimo', (req, res) => {
+    const { id_emprestimo } = req.params;
+    db.query('DELETE FROM emprestimo WHERE id_emprestimo = ?', [id_emprestimo],
+        (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            res.sendStatus(204);
+        });
+});
+
+module.exports = router;
