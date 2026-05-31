@@ -59,10 +59,10 @@ router.put('/:id_usuario', (req, res) => {
 
     db.query('update usuario set nome = ?, email = ?, senha = ?, perfil = ? where id_usuario = ?', [nome, email, senha, perfil], (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ message: 'Usuario não encontrado' });
+            res.status(404).json({ error: 'Usuario não encontrado' });
         }
         res.status(200).json({ id_usuario: Number(id_usuario), nome, email, perfil });
     });
@@ -76,10 +76,10 @@ router.put('/:id_livro', (req, res) => {
 
     db.query('update livro set titulo = ?, autor = ?, ano_publicacao = ?, quantidade_disponivel = ? where id_livro = ?', [titulo, autor, ano_publicacao, quantidade_disponivel], (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ message: 'Livro não encontrado' });
+            res.status(404).json({ error: 'Livro não encontrado' });
         }
         res.status(200).json({ id_livro: Number(id_livro), titulo, autor, ano_publicacao, quantidade_disponivel });
     });
@@ -93,10 +93,10 @@ router.put('/:id_emprestimo', (req, res) => {
 
     db.query('update livro set livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucoa_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? where id_emprestimo', [livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo], (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         if (result.affectedRows === 0) {
-            res.status(404).json({ message: 'Livro não encontrado' });
+            res.status(404).json({ error: 'Livro não encontrado' });
         }
         res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_empretimo, data_devolucao_prevista, data_devolucao_real, status_emeprestimo });
     });
@@ -106,8 +106,8 @@ router.put('/:id_emprestimo', (req, res) => {
 
 router.get('/listarUsuarios', (req, res) => {
     db.query('select * from usuario', (err, results) => {
-        if(err){
-            return res.status(500).json({message: 'Erro interno do servidor'});
+        if (err) {
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
         res.status(200).json(results)
     })
@@ -115,8 +115,8 @@ router.get('/listarUsuarios', (req, res) => {
 
 router.get('/listarLivros', (req, res) => {
     db.query('select * from livro', (err, results) => {
-        if(err){
-            return res.status(500).json({message: 'Erro interno do servidor'})
+        if (err) {
+            return res.status(500).json({ error: 'Erro interno do servidor' })
         }
         res.status(200).json(results)
     });
@@ -124,9 +124,46 @@ router.get('/listarLivros', (req, res) => {
 
 router.get('/listarEmprestimos', (req, res) => {
     db.query('select * from emprestimo', (err, results) => {
-        if(err){
-            return res.status(500).json({message: 'Erro interno do servidor'})
+        if (err) {
+            return res.status(500).json({ error: 'Erro interno do servidor' })
         }
         res.status(200).json(results)
     })
 })
+
+//------------------------------------------------------DELETAR---------------------------------------------------------
+
+
+router.delete('/:id_usuario', (res, req) => {
+    const { id_usuario } = req.params;
+    db.query('delete from users where id_usuario = ?', [id_usuario],
+        (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            res.sendStatus(204).json({ message: 'Deletado do banco' })
+        });
+});
+
+router.delete('/:id_livro', (res, req) => {
+    const { id_livro } = req.params;
+    db.query('delte from livro where id_livro = ?', [id_livro],
+        (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            res.sendStatus(204).json({ message: 'Deletado do banco' })
+        });
+
+})
+
+router.delete('/:id_emprestimo', (res, req) => {
+    const {id_emprestimo} = req.params;
+    db.query('delete from emprestimo = ? ', [id_emprestimo],
+        (err) =>{
+            if(err){
+                return res.status(500).json({error: 'Erro interno do servidor'});
+            }
+            res.sendStatus(204).json({message: 'Deletado doo banco'})
+        });
+});
