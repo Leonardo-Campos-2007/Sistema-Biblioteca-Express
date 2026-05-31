@@ -1,0 +1,24 @@
+{
+  "name": "sistema-biblioteca-express",
+  "version": "1.0.0",
+  "description": "Trabalho de web",
+  "homepage": "https://github.com/Leonardo-Campos-2007/Sistema-Biblioteca-Express#readme",
+  "bugs": {
+    "url": "https://github.com/Leonardo-Campos-2007/Sistema-Biblioteca-Express/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Leonardo-Campos-2007/Sistema-Biblioteca-Express.git"
+  },
+  "license": "ISC",
+  "author": "leonardo",
+  "type": "commonjs",
+  "main": "db.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
