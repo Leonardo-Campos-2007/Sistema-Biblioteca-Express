@@ -1,0 +1,366 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Painel do Bibliotecário
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body class="dashboard-body">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+            <i class="fa-solid fa-book-open-reader"></i>
+
+            <h2>Biblioteca</h2>
+
+        </div>
+
+        <nav>
+
+            <ul>
+
+                <li>
+                    <a href="#dashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#livros">
+                        <i class="fa-solid fa-book"></i>
+                        Livros
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#emprestimos">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        Empréstimos
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+
+    <main class="dashboard-container">
+
+        <!-- HEADER -->
+
+        <header class="dashboard-header">
+
+            <div>
+
+                <h1>
+                    Painel do Bibliotecário
+                </h1>
+
+                <p>
+                    Gerencie livros e empréstimos
+                </p>
+
+            </div>
+
+            <div class="user-area">
+
+                <span id="userName">
+                    Administrador
+                </span>
+
+                <button
+                    class="btn-danger"
+                    onclick="logout()">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Sair
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- DASHBOARD -->
+
+        <section
+            id="dashboard"
+            class="dashboard-section">
+
+            <h2>
+                Estatísticas
+            </h2>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-book"></i>
+
+                    <h3 id="totalBooks">
+                        0
+                    </h3>
+
+                    <p>
+                        Total de Livros
+                    </p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    <h3 id="availableBooks">
+                        0
+                    </h3>
+
+                    <p>
+                        Disponíveis
+                    </p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+
+                    <h3 id="activeLoans">
+                        0
+                    </h3>
+
+                    <p>
+                        Empréstimos Ativos
+                    </p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                    <h3 id="lateLoans">
+                        0
+                    </h3>
+
+                    <p>
+                        Atrasados
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- CADASTRO DE LIVROS -->
+
+        <section
+            id="livros"
+            class="dashboard-section">
+
+            <h2>
+                Cadastro de Livros
+            </h2>
+
+            <form
+                id="bookForm"
+                class="book-form">
+
+                <input
+                    type="text"
+                    id="titulo"
+                    placeholder="Título"
+                    required>
+
+                <input
+                    type="text"
+                    id="autor"
+                    placeholder="Autor"
+                    required>
+
+                <input
+                    type="number"
+                    id="ano"
+                    placeholder="Ano"
+                    required>
+
+                <input
+                    type="number"
+                    id="quantidade"
+                    placeholder="Quantidade"
+                    required>
+
+                <button
+                    type="submit"
+                    class="btn-primary">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Salvar Livro
+
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- CATÁLOGO -->
+
+        <section class="dashboard-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Catálogo de Livros
+                </h2>
+
+                <input
+                    type="text"
+                    id="searchBook"
+                    placeholder="Pesquisar livro...">
+
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Ano</th>
+                            <th>Quantidade</th>
+                            <th>Ações</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="booksTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- EMPRÉSTIMOS -->
+
+        <section
+            id="emprestimos"
+            class="dashboard-section">
+
+            <h2>
+                Controle de Empréstimos
+            </h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Leitor</th>
+                            <th>Livro</th>
+                            <th>Data Empréstimo</th>
+                            <th>Devolução Prevista</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="loansTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL -->
+
+    <div
+        id="confirmModal"
+        class="modal">
+
+        <div class="modal-content">
+
+            <h3>
+                Confirmar ação
+            </h3>
+
+            <p id="modalText">
+                Deseja realmente continuar?
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    class="btn-secondary"
+                    onclick="closeModal()">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    id="confirmAction"
+                    class="btn-danger">
+
+                    Confirmar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
+```
