@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 
 const apiRouter = require('./routes/api');
 app.use(express.json());
-app.use('/api/users', apiRouter );
+app.use('/routes', apiRouter );
 
 app.listen(port, () => {
     console.log(`Server funfionando em http://localhost:${port}`);
