@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -6,21 +5,15 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         Painel do Bibliotecário
     </title>
 
-    <link
-        rel="stylesheet"
-        href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
 
@@ -95,9 +88,7 @@
                     Administrador
                 </span>
 
-                <button
-                    class="btn-danger"
-                    onclick="logout()">
+                <button class="btn-danger" onclick="logout()">
 
                     <i class="fa-solid fa-right-from-bracket"></i>
                     Sair
@@ -110,9 +101,7 @@
 
         <!-- DASHBOARD -->
 
-        <section
-            id="dashboard"
-            class="dashboard-section">
+        <section id="dashboard" class="dashboard-section">
 
             <h2>
                 Estatísticas
@@ -182,45 +171,23 @@
 
         <!-- CADASTRO DE LIVROS -->
 
-        <section
-            id="livros"
-            class="dashboard-section">
+        <section id="livros" class="dashboard-section">
 
             <h2>
                 Cadastro de Livros
             </h2>
 
-            <form
-                id="bookForm"
-                class="book-form">
+            <form id="bookForm" class="book-form">
 
-                <input
-                    type="text"
-                    id="titulo"
-                    placeholder="Título"
-                    required>
+                <input type="text" id="titulo" placeholder="Título" required>
 
-                <input
-                    type="text"
-                    id="autor"
-                    placeholder="Autor"
-                    required>
+                <input type="text" id="autor" placeholder="Autor" required>
 
-                <input
-                    type="number"
-                    id="ano"
-                    placeholder="Ano"
-                    required>
+                <input type="number" id="ano" placeholder="Ano" required>
 
-                <input
-                    type="number"
-                    id="quantidade"
-                    placeholder="Quantidade"
-                    required>
+                <input type="number" id="quantidade" placeholder="Quantidade" required>
 
-                <button
-                    type="submit"
-                    class="btn-primary">
+                <button type="submit" class="btn-primary">
 
                     <i class="fa-solid fa-floppy-disk"></i>
                     Salvar Livro
@@ -241,10 +208,7 @@
                     Catálogo de Livros
                 </h2>
 
-                <input
-                    type="text"
-                    id="searchBook"
-                    placeholder="Pesquisar livro...">
+                <input type="text" id="searchBook" placeholder="Pesquisar livro...">
 
             </div>
 
@@ -279,9 +243,7 @@
 
         <!-- EMPRÉSTIMOS -->
 
-        <section
-            id="emprestimos"
-            class="dashboard-section">
+        <section id="emprestimos" class="dashboard-section">
 
             <h2>
                 Controle de Empréstimos
@@ -320,9 +282,7 @@
 
     <!-- MODAL -->
 
-    <div
-        id="confirmModal"
-        class="modal">
+    <div id="confirmModal" class="modal">
 
         <div class="modal-content">
 
@@ -336,17 +296,13 @@
 
             <div class="modal-actions">
 
-                <button
-                    class="btn-secondary"
-                    onclick="closeModal()">
+                <button class="btn-secondary" onclick="closeModal()">
 
                     Cancelar
 
                 </button>
 
-                <button
-                    id="confirmAction"
-                    class="btn-danger">
+                <button id="confirmAction" class="btn-danger">
 
                     Confirmar
 
@@ -359,8 +315,10 @@
     </div>
 
     <script src="js/app.js"></script>
+    <script src="js/livro.js"></script>
+    <script src="js/usuario.js"></script>
+    <script src="js/emprestimo.js"></script>
 
 </body>
 
 </html>
-```

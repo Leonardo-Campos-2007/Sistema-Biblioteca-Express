@@ -154,4 +154,23 @@ router.delete('/emprestimo/:id_emprestimo', (req, res) => {
         });
 });
 
+router.post('/validarLogin', (req, res) => {
+    const { usuario, senha } = req.body;
+
+
+    db.query('SELECT * FROM usuario WHERE usuario = ? AND senha = ?', [usuario, senha], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+
+       
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Usuário ou senha inválidos' });
+        }
+
+        
+        res.status(200).json({ message: 'Login realizado com sucesso', usuario: results[0] });
+    });
+});
+
 module.exports = router;

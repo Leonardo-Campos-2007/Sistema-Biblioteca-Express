@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Colaborador - Biblioteca</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+    <main class="auth-container">
+
+        <section class="institutional-panel">
+
+            <div class="institutional-wrapper">
+
+                <div class="logo-area">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <h1>
+                        Sistema de Gerenciamento de Biblioteca
+                    </h1>
+                </div>
+
+                <div class="institutional-content">
+                    <span class="badge">
+                        Área Administrativa
+                    </span>
+                    <h2>
+                        Painel Interno do Colaborador
+                    </h2>
+                    <p>
+                        Acesse as ferramentas de catalogação, controle de multas, 
+                        relatórios de desempenho e gerenciamento avançado de leitores.
+                    </p>
+
+                    <div class="features">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            <span>Administração</span>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Relatórios</span>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Segurança</span>
+                        </div>
+                    </div>
+
+                    <div class="illustration">
+                        <div class="floating-icon"><i class="fa-solid fa-key"></i></div>
+                        <div class="floating-icon"><i class="fa-solid fa-gears"></i></div>
+                        <div class="floating-icon"><i class="fa-solid fa-user-check"></i></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="auth-panel">
+
+            <div class="auth-card">
+
+                <div class="auth-header">
+                    <h2>Área Restrita</h2>
+                    <p>
+                        Autentique-se para acessar o painel administrativo
+                    </p>
+                </div>
+
+                <div class="tabs">
+                    <button type="button" class="tab-btn active" data-tab="loginFuncionario">
+                        Login
+                    </button>
+                    <button type="button" class="tab-btn" data-tab="cadastroFuncionario">
+                        Cadastrar Staff
+                    </button>
+                </div>
+
+                <div id="loginFuncionario" class="tab-content active">
+
+                    <form id="loginFuncionarioForm">
+
+                        <div class="input-group">
+                            <label for="funcEmail">Email Corporativo</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="funcEmail" name="funcEmail" autocomplete="email"
+                                    placeholder="seu.nome@biblioteca.com" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="funcPassword">Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="funcPassword" name="funcPassword"
+                                    autocomplete="current-password" placeholder="Digite sua senha" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-shield"></i> Acessar Painel
+                        </button>
+
+                    </form>
+
+                    <div class="auth-links">
+                        <a href="index.html">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar para Login de Leitores
+                        </a>
+                    </div>
+
+                    <div id="loginFuncionarioMessage"></div>
+                </div>
+
+                <div id="cadastroFuncionario" class="tab-content">
+
+                    <form id="cadastroFuncionarioForm">
+
+                        <div class="input-group">
+                            <label for="funcName">Nome Completo</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user"></i>
+                                <input type="text" id="funcName" name="funcName" placeholder="Nome do colaborador" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="funcRegisterEmail">Email Corporativo</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="funcRegisterEmail" name="funcRegisterEmail" placeholder="email@biblioteca.com" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="funcNewPassword">Senha de Acesso</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="funcNewPassword" name="funcNewPassword" minlength="8" placeholder="Mínimo 8 caracteres" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="funcConfirmPassword">Confirmar Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="funcConfirmPassword" name="funcConfirmPassword" minlength="8" placeholder="Repita a senha" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="funcCargo">Cargo / Função</label>
+                            <select id="funcCargo" name="funcCargo" required>
+                                <option value="">Selecione a função</option>
+                                <option value="bibliotecario">Bibliotecário Chefe</option>
+                                <option value="auxiliar">Auxiliar de Biblioteca</option>
+                                <option value="TI">Administrador do Sistema (TI)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-user-plus"></i> Registrar Colaborador
+                        </button>
+
+                    </form>
+
+                    <div id="cadastroFuncionarioMessage"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/funcionario.js"></script>
+
+</body>
+
+</html>
