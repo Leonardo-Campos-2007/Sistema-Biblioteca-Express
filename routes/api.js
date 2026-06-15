@@ -155,10 +155,10 @@ router.delete('/emprestimo/:id_emprestimo', (req, res) => {
 });
 
 router.post('/validarLogin', (req, res) => {
-    const { usuario, senha } = req.body;
+    const { email, senha } = req.body;
 
 
-    db.query('SELECT * FROM usuario WHERE usuario = ? AND senha = ?', [usuario, senha], (err, results) => {
+    db.query('SELECT * FROM usuario WHERE email = ? AND senha = ?', [email, senha], (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }

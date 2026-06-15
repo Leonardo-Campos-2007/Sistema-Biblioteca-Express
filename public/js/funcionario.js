@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // URL base do seu servidor Node.js (Ajuste o final caso use prefixos como /api ou /routes)
+    const API_URL = 'http://localhost:3000'; 
+
     const loginFuncionarioForm = document.getElementById('loginFuncionarioForm');
     const cadastroFuncionarioForm = document.getElementById('cadastroFuncionarioForm');
     
-    const API_URL = 'http://localhost:3000'; // Ajuste a porta se necessário
-
     // ==========================================
-    // 1. REAPROVEITANDO A ROTA DE LOGIN
+    // 1. PROCESSAMENTO DE LOGIN DO FUNCIONÁRIO
     // ==========================================
     if (loginFuncionarioForm) {
         loginFuncionarioForm.addEventListener('submit', async (e) => {
@@ -19,40 +20,51 @@ document.addEventListener('DOMContentLoaded', () => {
             messageDiv.textContent = 'Autenticando colaborador...';
 
             try {
-                // Enviando para a MESMA rota de validarLogin que você já criou
                 const response = await fetch(`${API_URL}/validarLogin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario: email, senha: senha })
+                    body: JSON.stringify({ email: email, senha: senha })
                 });
+
+                // Evita quebra de leitura caso o retorno não seja JSON
+                if (!response.ok) {
+                    messageDiv.style.color = 'red';
+                    if (response.status === 404) {
+                        messageDiv.textContent = 'Erro 404: Rota de login não encontrada no servidor.';
+                    } else {
+                        const errorText = await response.text();
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            messageDiv.textContent = errorJson.error || 'Credenciais inválidas.';
+                        } catch (e) {
+                            messageDiv.textContent = 'Erro ao tentar acessar (' + response.status + ').';
+                        }
+                    }
+                    return;
+                }
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    messageDiv.style.color = 'green';
-                    messageDiv.textContent = 'Acesso autorizado! Redirecionando...';
+                messageDiv.style.color = 'green';
+                messageDiv.textContent = 'Acesso autorizado! Redirecionando...';
 
-                    // Salva a sessão do funcionário
-                    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
+                // Armazena temporariamente os dados da sessão
+                localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
 
-                    // Redireciona para a página do bibliotecário que você pediu
-                    setTimeout(() => {
-                        window.location.href = 'bibliotecario.html';
-                    }, 1500);
-                } else {
-                    messageDiv.style.color = 'red';
-                    messageDiv.textContent = data.error || 'Erro ao realizar login.';
-                }
+                setTimeout(() => {
+                    window.location.href = 'bibliotecario.html';
+                }, 1500);
+
             } catch (error) {
                 console.error(error);
                 messageDiv.style.color = 'red';
-                messageDiv.textContent = 'Erro ao conectar com o servidor.';
+                messageDiv.textContent = 'Erro de conexão: Não foi possível alcançar o servidor.';
             }
         });
     }
 
     // ==========================================
-    // 2. REAPROVEITANDO A ROTA DE CADASTRO
+    // 2. PROCESSAMENTO DE CADASTRO DO FUNCIONÁRIO
     // ==========================================
     if (cadastroFuncionarioForm) {
         cadastroFuncionarioForm.addEventListener('submit', async (e) => {
@@ -62,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('funcRegisterEmail').value;
             const senha = document.getElementById('funcNewPassword').value;
             const confirmarSenha = document.getElementById('funcConfirmPassword').value;
-            const cargo = document.getElementById('funcCargo').value; // 'bibliotecario', 'auxiliar' ou 'TI'
+            const cargo = document.getElementById('funcCargo').value;
             const messageDiv = document.getElementById('cadastroFuncionarioMessage');
 
             if (senha !== confirmarSenha) {
@@ -75,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messageDiv.textContent = 'Registrando colaborador...';
 
             try {
-                // Enviando para a MESMA rota de cadastroUser que você já criou
                 const response = await fetch(`${API_URL}/cadastroUser`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -83,31 +94,44 @@ document.addEventListener('DOMContentLoaded', () => {
                         nome: nome,
                         email: email,
                         senha: senha,
-                        perfil: cargo // Passa o cargo selecionado para o campo perfil do banco
+                        perfil: cargo
                     })
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageDiv.style.color = 'green';
-                    messageDiv.textContent = 'Colaborador cadastrado com sucesso!';
-                    cadastroFuncionarioForm.reset();
-
-                    // Volta para a aba de login de funcionário após 2 segundos
-                    setTimeout(() => {
-                        messageDiv.textContent = '';
-                        const loginTab = document.querySelector('[data-tab="loginFuncionario"]');
-                        if (loginTab) loginTab.click();
-                    }, 2000);
-                } else {
+                // Tratamento de erro robusto para evitar o erro do "<!DOCTYPE"
+                if (!response.ok) {
                     messageDiv.style.color = 'red';
-                    messageDiv.textContent = data.error || 'Erro ao realizar o cadastro.';
+                    if (response.status === 404) {
+                        messageDiv.textContent = 'Erro 404: A rota não foi encontrada no servidor. Verifique o caminho ou prefixos no backend.';
+                    } else {
+                        const errorText = await response.text();
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            messageDiv.textContent = errorJson.error || 'Erro ao realizar o cadastro.';
+                        } catch (e) {
+                            messageDiv.textContent = 'Erro interno do servidor (' + response.status + ').';
+                        }
+                    }
+                    return;
                 }
+
+                // Se chegou aqui, a resposta é um JSON válido e deu status 201!
+                const data = await response.json();
+                
+                messageDiv.style.color = 'green';
+                messageDiv.textContent = 'Colaborador cadastrado com sucesso!';
+                cadastroFuncionarioForm.reset();
+
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    const loginTab = document.querySelector('[data-tab="loginFuncionario"]');
+                    if (loginTab) loginTab.click();
+                }, 2000);
+
             } catch (error) {
                 console.error(error);
                 messageDiv.style.color = 'red';
-                messageDiv.textContent = 'Erro ao conectar com o servidor.';
+                messageDiv.textContent = 'Erro de conexão: Não foi possível alcançar o servidor.';
             }
         });
     }
