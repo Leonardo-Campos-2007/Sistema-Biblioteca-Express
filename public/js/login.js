@@ -24,22 +24,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ usuario: email, senha: senha }) 
+                    body: JSON.stringify({ email: email, senha: senha }) 
                 });
 
                 const data = await response.json();
 
                 // Tratamento da resposta do servidor
-                if (response.ok) {
-                    messageDiv.style.color = 'green';
-                    messageDiv.textContent = 'Login realizado com sucesso! Redirecionando...';
-                    
-                    // Salva os dados do usuário se necessário e redireciona
-                    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html'; // Troque pela sua página de painel
-                    }, 1500);
-                } else {
+              // Tratamento da resposta do servidor dentro do evento de submit
+if (response.ok) {
+    if (messageDiv) {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Login realizado com sucesso! Redirecionando...';
+    }
+    
+    // Guarda os dados do usuário para usarmos no painel
+    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
+    
+    setTimeout(() => {
+        // Captura o endereço da pasta atual do seu projeto frontend
+        const urlAtual = window.location.origin + window.location.pathname;
+        const pastaAtual = urlAtual.substring(0, urlAtual.lastIndexOf('/'));
+
+        // 🔥 Força o redirecionamento correto para as páginas existentes:
+        if (data.usuario && data.usuario.perfil === 'bibliotecario') {
+            window.location.href = `${pastaAtual}/bibliotecario.html`;
+        } else {
+            // Garante que o leitor vá direto para o arquivo certo
+            window.location.href = `${pastaAtual}/leitor.html`; 
+        }
+    }, 1500);
+}else {
                     // Exibe a mensagem de erro que veio lá do res.status(401).json(...)
                     messageDiv.style.color = 'red';
                     messageDiv.textContent = data.error || 'Erro ao realizar login.';

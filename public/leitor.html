@@ -2,205 +2,73 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Painel do Leitor
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="css/style.css">
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Leitor</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body class="dashboard-body">
 
-    <!-- SIDEBAR -->
-
     <aside class="sidebar">
-
         <div class="sidebar-header">
-
             <i class="fa-solid fa-book-open-reader"></i>
-
             <h2>Biblioteca</h2>
-
         </div>
-
         <nav>
-
             <ul>
-
                 <li>
-
                     <a href="#catalogo">
-
                         <i class="fa-solid fa-book"></i>
-
                         Catálogo
-
                     </a>
-
                 </li>
-
                 <li>
-
                     <a href="#emprestimos">
-
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
-
                         Meus Empréstimos
-
                     </a>
-
                 </li>
-
             </ul>
-
         </nav>
-
     </aside>
-
-    <!-- CONTEÚDO -->
 
     <main class="dashboard-container">
 
-        <!-- HEADER -->
-
         <header class="dashboard-header">
-
             <div>
-
-                <h1>
-                    Painel do Leitor
-                </h1>
-
-                <p>
-                    Consulte livros e acompanhe seus empréstimos
-                </p>
-
+                <h1>Painel do Leitor</h1>
+                <p>Consulte livros e acompanhe seus empréstimos</p>
             </div>
-
             <div class="user-area">
-
-                <span id="readerName">
-                    Leitor
-                </span>
-
-                <button
-                    class="btn-danger"
-                    onclick="logout()">
-
+                <span id="readerName">Leitor</span>
+                <button class="btn-danger" onclick="logout()">
                     <i class="fa-solid fa-right-from-bracket"></i>
-
                     Sair
-
                 </button>
-
             </div>
-
         </header>
 
-        <!-- CATÁLOGO -->
-
-        <section
-            id="catalogo"
-            class="dashboard-section">
-
+        <section id="catalogo" class="dashboard-section">
             <div class="section-header">
-
-                <h2>
-                    Catálogo de Livros
-                </h2>
-
-                <input
-                    type="text"
-                    id="searchCatalog"
-                    placeholder="Pesquisar livro...">
-
+                <h2>Catálogo de Livros</h2>
+                <input type="text" id="searchCatalog" placeholder="Pesquisar livro...">
             </div>
-
             <div class="table-container">
-
                 <table>
-
                     <thead>
-
                         <tr>
-
                             <th>ID</th>
                             <th>Título</th>
                             <th>Autor</th>
                             <th>Ano</th>
                             <th>Disponibilidade</th>
                             <th>Ação</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody id="catalogTable">
-
-                    </tbody>
-
+                        </tbody>
                 </table>
-
             </div>
-
         </section>
-
-        <!-- MEUS EMPRÉSTIMOS -->
-
-        <section
-            id="emprestimos"
-            class="dashboard-section">
-
-            <h2>
-                Meus Empréstimos
-            </h2>
-
-            <div class="table-container">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Livro</th>
-                            <th>Data Empréstimo</th>
-                            <th>Devolução Prevista</th>
-                            <th>Status</th>
-                            <th>Ação</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="myLoansTable">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <script src="js/app.js"></script>
-
-</body>
-
-</html>

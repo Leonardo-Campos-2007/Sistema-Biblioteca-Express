@@ -54,3 +54,11 @@ if (backToLogin) {
         switchTab('login'); // Volta para o formulário comum
     });
 }
+
+function logout() {
+    // Caso use autenticação futuramente, limpe os dados aqui:
+    // localStorage.removeItem('usuarioLogado');
+    
+    // Redireciona para a página inicial
+    window.location.href = 'index.html';
+}
