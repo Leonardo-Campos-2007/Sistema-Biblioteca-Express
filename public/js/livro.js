@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Funções para controle de fechamento do Modal
-    window.fecharModalEdicao = () => {
+    window.fecharBookModalEdicao = () => {
         if (editBookModal) {
             editBookModal.style.display = 'none';
             editBookForm.reset();
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deletarLivro = async (id_livro) => {
         if (confirm('Deseja realmente excluir este livro permanentemente?')) {
             try {
-                const response = await fetch(`${URL_BASE}/livro/${id_livro}`, { method: 'DELETE' });
+                const response = await fetch(`${URL_BASE}/emprestimo/${id_livro}`, { method: 'DELETE' });
                 if (response.status === 204 || response.ok) {
                     carregarLivros();
                     if (typeof atualizarSelectsEmprestimo === 'function') atualizarSelectsEmprestimo();

@@ -90,6 +90,32 @@ router.put('/emprestimo/:id_emprestimo', (req, res) => {
     });
 });
 
+router.put('/livro/:id/diminuir', (req, res) => {
+    const { id } = req.params;
+
+    db.query(
+        'UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ? AND quantidade_disponivel > 0',
+        [id],
+        (err) => {
+            if (err) return res.status(500).json(err);
+            res.sendStatus(200);
+        }
+    );
+});
+
+router.put('/livro/:id/aumentar', (req, res) => {
+    const { id } = req.params;
+
+    db.query(`
+        UPDATE livro 
+        SET quantidade_disponivel = quantidade_disponivel + 1
+        WHERE id_livro = ?
+    `, [id], (err) => {
+        if (err) return res.status(500).json(err);
+        res.sendStatus(200);
+    });
+});
+
 // ----------------------------------------------------------- LISTAR ----------
 
 router.get('/listarUsuarios', (req, res) => {
@@ -111,12 +137,20 @@ router.get('/listarLivros', (req, res) => {
 });
 
 router.get('/listarEmprestimos', (req, res) => {
-    db.query('SELECT * FROM emprestimo', (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Erro interno do servidor' });
+    db.query(
+        'SELECT id_emprestimo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, ' +
+        'nome, ' +
+        'id_livro, titulo ' +
+        'FROM emprestimo e ' +
+        'JOIN usuario u ON e.usuario_id = u.id_usuario ' +
+        'JOIN livro l ON e.livro_id = l.id_livro',
+        (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            res.status(200).json(results);
         }
-        res.status(200).json(results);
-    });
+    );
 });
 
 // ------------------------------------------------------DELETAR---------------
@@ -163,12 +197,12 @@ router.post('/validarLogin', (req, res) => {
             return res.status(500).json({ error: 'Erro interno do servidor' });
         }
 
-       
+
         if (results.length === 0) {
             return res.status(401).json({ error: 'Usuário ou senha inválidos' });
         }
 
-        
+
         res.status(200).json({ message: 'Login realizado com sucesso', usuario: results[0] });
     });
 });

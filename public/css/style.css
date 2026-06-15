@@ -480,11 +480,67 @@ select{
     border-radius:12px;
     padding:0 15px;
     outline:none;
+    text-align: center;
 }
 
-.book-form input:focus{
+.book-form label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+    text-align: center;
+}
+
+.book-form > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.book-form button {
+    grid-column: 1 / -1; /* botão ocupa toda largura */
+}
+
+.loan-form{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+}
+
+.loan-form input{
+    height:52px;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    padding:0 15px;
+    outline:none;
+    text-align: center;
+}
+
+.loan-form select {
+    text-align: center;
+}
+
+.loan-form input:focus{
     border-color:#2563eb;
 }
+
+.loan-form label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+    text-align: center;
+}
+
+.loan-form > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.loan-form button {
+    grid-column: 1 / -1; /* botão ocupa toda largura */
+}
+
 
 /* ==========================================
    TABELAS
@@ -734,4 +790,15 @@ tr:hover{
 .modal-content input {
     margin-bottom: 15px !important;
     width: 100%;
+}
+
+#searchBook {
+    width: 100%;
+    margin-bottom: 15px;
+    height:52px;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    padding:0 15px;
+    outline:none;
+    font-size: 15px;
 }
