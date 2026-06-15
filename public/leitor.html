@@ -53,7 +53,7 @@
         <section id="catalogo" class="dashboard-section">
             <div class="section-header">
                 <h2>Catálogo de Livros</h2>
-                <input type="text" id="searchCatalog" placeholder="Pesquisar livro...">
+                <input type="text" id="searchCatalog" placeholder="Pesquisar por título ou autor...">
             </div>
             <div class="table-container">
                 <table>
@@ -72,3 +72,68 @@
                 </table>
             </div>
         </section>
+
+        <section id="emprestimos" class="dashboard-section">
+            <h2>Meus Empréstimos Realizados</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Livro</th>
+                            <th>Data de Empréstimo</th>
+                            <th>Devolução Prevista</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myLoansTable">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="loanModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-book-reader"></i> Solicitar Empréstimo</h3>
+            <hr class="modal-divider" style="margin-bottom: 15px; border: 0; border-top: 1px solid #ddd;">
+            
+            <form id="loanForm" class="book-form">
+                <input type="hidden" id="form_id_livro">
+
+                <label for="form_titulo_livro">Livro Selecionado</label>
+                <input type="text" id="form_titulo_livro" readonly style="background-color: #eee; cursor: not-allowed;">
+
+                <label for="form_data_devolucao">Data Prevista para Devolução</label>
+                <input type="date" id="form_data_devolucao" required>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="fecharModalEmprestimo()">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-check"></i> Confirmar Empréstimo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        // Garante a inserção do nome do usuário na interface
+        document.addEventListener('DOMContentLoaded', () => {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (usuarioLogado && usuarioLogado.nome) {
+                const readerNameSpan = document.getElementById('readerName');
+                if (readerNameSpan) readerNameSpan.textContent = usuarioLogado.nome;
+            }
+        });
+    </script>
+    <script src="js/app.js"></script>
+    <script src="js/leitor.js"></script>
+
+</body>
+
+</html>
