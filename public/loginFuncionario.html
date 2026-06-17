@@ -77,12 +77,8 @@
                 </div>
 
                 <div class="tabs">
-                    <button type="button" class="tab-btn active" data-tab="loginFuncionario">
-                        Login
-                    </button>
-                    <button type="button" class="tab-btn" data-tab="cadastroFuncionario">
-                        Cadastrar Staff
-                    </button>
+                  
+                 
                 </div>
 
                 <div id="loginFuncionario" class="tab-content active">
@@ -124,55 +120,7 @@
 
                 <div id="cadastroFuncionario" class="tab-content">
 
-                    <form id="cadastroFuncionarioForm">
-
-                        <div class="input-group">
-                            <label for="funcName">Nome Completo</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-user"></i>
-                                <input type="text" id="funcName" name="funcName" placeholder="Nome do colaborador" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="funcRegisterEmail">Email Corporativo</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="funcRegisterEmail" name="funcRegisterEmail" placeholder="email@biblioteca.com" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="funcNewPassword">Senha de Acesso</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="funcNewPassword" name="funcNewPassword" minlength="8" placeholder="Mínimo 8 caracteres" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="funcConfirmPassword">Confirmar Senha</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="funcConfirmPassword" name="funcConfirmPassword" minlength="8" placeholder="Repita a senha" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="funcCargo">Cargo / Função</label>
-                            <select id="funcCargo" name="funcCargo" required>
-                                <option value="">Selecione a função</option>
-                                <option value="bibliotecario">Bibliotecário Chefe</option>
-                                <option value="auxiliar">Auxiliar de Biblioteca</option>
-                                <option value="TI">Administrador do Sistema (TI)</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn-primary">
-                            <i class="fa-solid fa-user-plus"></i> Registrar Colaborador
-                        </button>
-
-                    </form>
+                    
 
                     <div id="cadastroFuncionarioMessage"></div>
                 </div>

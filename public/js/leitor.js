@@ -223,42 +223,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 5. Função Global para Devolução de Livros
-    window.devolverLivro = async (idEmprestimo, idLivro) => {
-        if (!confirm('Tem certeza que deseja devolver este livro e atualizar o acervo?')) return;
+// No seu arquivo do leitor (onde está a função devolverLivro)
+window.devolverLivro = async (idEmprestimo, idLivro) => {
+    if (!confirm('Deseja solicitar a devolução deste livro?')) return;
 
-        const hoje = new Date().toISOString().split('T')[0];
-        const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
-
-        // Monta o corpo com as informações necessárias para atualizar a rota PUT /emprestimo/:id
-        const dadosDevolucao = {
-            livro_id: Number(idLivro),
-            usuario_id: Number(idUsuarioLogado),
-            data_devolucao_real: hoje,
-            status_emprestimo: 'Devolvido'
-        };
-
-        try {
-            const response = await fetch(`${URL_BASE}/emprestimo/${idEmprestimo}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosDevolucao)
-            });
-
-            if (response.ok) {
-                alert('Livro devolvido com sucesso! O estoque foi reabastecido.');
-                
-                // Recarrega as tabelas da tela sem precisar dar reload total
-                carregarCatalogo();
-                carregarMeusEmprestimos();
-            } else {
-                const errData = await response.json();
-                alert(errData.error || 'Erro ao processar devolução no servidor.');
-            }
-        } catch (error) {
-            console.error('Erro na requisição de devolução:', error);
-            alert('Não foi possível conectar ao servidor para processar a devolução.');
-        }
+    // Altere o status para 'Pendente' ou 'Solicitou Devolução'
+    // Assim, o bibliotecário saberá que precisa editar/finalizar este empréstimo
+    const dadosDevolucao = {
+        status_emprestimo: 'Pendente de Devolução' 
     };
+
+    try {
+        const response = await fetch(`${URL_BASE}/emprestimo/${idEmprestimo}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dadosDevolucao)
+        });
+
+        if (response.ok) {
+            alert('Solicitação de devolução enviada! O bibliotecário irá processar.');
+            carregarMeusEmprestimos();
+        }
+    } catch (error) {
+        alert('Erro ao solicitar devolução.');
+    }
+};
 
     if (searchCatalog) {
         searchCatalog.addEventListener('input', (e) => {
