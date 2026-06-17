@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
             console.log("ID do Usuário Logado extraído para filtro:", idUsuarioLogado);
 
-            // 1. Busca os livros para traduzir IDs em Títulos
+            // 1. Busca os livros para traduzir IDs em Títulos (Caso a query falhe em trazer o join)
             const resLivros = await fetch(`${URL_BASE}/listarLivros`);
             const todosOsLivros = resLivros.ok ? await resLivros.json() : [];
 
@@ -88,15 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const todosEmprestimos = await response.json();
             console.log("Todos os empréstimos brutos vindos da API:", todosEmprestimos);
 
-            
             // Filtra os registros procurando qualquer variação de nome de coluna de ID que venha do banco
             const meusEmprestimos = todosEmprestimos.filter(emp => {
-                // Tenta encontrar o ID do usuário de todas as formas possíveis que o SQL pode retornar
-                const idNoBanco = emp.usuario_id || emp.id_usuario || emp.id_usuarios || emp.usuario || emp.idLeitor;
-                
-                // Exibe no console para checarmos se a propriedade foi mapeada
+                const idNoBanco = emp.id_usuario || emp.usuario_id || emp.id_usuarios || emp.usuario || emp.idLeitor;
                 console.log(`Comparando livro do banco (User ID: ${idNoBanco}) com o Logado (ID: ${idUsuarioLogado})`);
-                
                 return String(idNoBanco) === String(idUsuarioLogado);
             });
 
@@ -106,11 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             myLoansTable.innerHTML = '';
 
             if (meusEmprestimos.length === 0) {
-                myLoansTable.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">Você não possui nenhum empréstimo ativo ou histórico registrado.</td></tr>`;
+                myLoansTable.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">Você não possui nenhum empréstimo ativo ou histórico registrado.</td></tr>`;
                 return;
             }
 
             meusEmprestimos.forEach(emp => {
+                const idEmprestimo = emp.id_emprestimo;
                 const idDoLivroEmp = emp.livro_id || emp.id_livro;
                 const dadosDoLivro = todosOsLivros.find(l => Number(l.id_livro || l.id) === Number(idDoLivroEmp));
                 
@@ -121,10 +117,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const statusAtual = emp.status_emprestimo || emp.status || 'Ativo';
 
                 let classeStatus = 'status-badge';
+                let botaoDevolver = '';
+
+                // Se o livro estiver Ativo ou Pendente, permite a devolução pelo painel
                 if (statusAtual.toLowerCase() === 'ativo' || statusAtual.toLowerCase() === 'pendente') {
                     classeStatus += ' ativo';
+                    botaoDevolver = `
+                        <button class="btn-danger btn-sm" style="padding: 2px 8px; font-size: 0.8rem; cursor: pointer;" 
+                                onclick="devolverLivro(${idEmprestimo}, ${idDoLivroEmp})">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Devolver
+                        </button>
+                    `;
                 } else if (statusAtual.toLowerCase() === 'atrasado') {
                     classeStatus += ' atrasado';
+                    botaoDevolver = `
+                        <button class="btn-danger btn-sm" style="padding: 2px 8px; font-size: 0.8rem; cursor: pointer;" 
+                                onclick="devolverLivro(${idEmprestimo}, ${idDoLivroEmp})">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Devolver
+                        </button>
+                    `;
+                } else {
+                    classeStatus += ' encerrado'; // Para o status 'Devolvido'
                 }
 
                 const tr = document.createElement('tr');
@@ -133,12 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${dataEmp}</td>
                     <td>${dataPrev}</td>
                     <td><span class="${classeStatus}">${statusAtual}</span></td>
+                    <td style="text-align: center;">${botaoDevolver || '-'}</td>
                 `;
                 myLoansTable.appendChild(tr);
             });
         } catch (error) {
             console.error('Erro crítico ao renderizar empréstimos:', error);
-            myLoansTable.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Erro ao obter histórico de empréstimos.</td></tr>`;
+            myLoansTable.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao obter histórico de empréstimos.</td></tr>`;
         }
     }
 
@@ -159,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loanForm) loanForm.reset();
     };
 
-    // 4. Submissão do formulário
+    // 4. Submissão do formulário (Pegar Livro Emprestado)
     if (loanForm) {
         loanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -179,30 +193,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 status_emprestimo: 'Ativo'
             };
 
-            try {
-                const response = await fetch(`${URL_BASE}/emprestimo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dadosEmprestimo)
-                });
+            // Validação de segurança baseada na regra do seu código anterior
+            if (dadosEmprestimo.livro_id !== 0 && dadosEmprestimo.usuario_id !== 0) {
+                try {
+                    const response = await fetch(`${URL_BASE}/emprestimo`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dadosEmprestimo)
+                    });
 
-                const respostaServidor = await response.json();
+                    const respostaServidor = await response.json();
 
-                if (response.ok || response.status === 201) {
-                    alert('Empréstimo registrado com sucesso!');
-                    fecharModalEmprestimo();
-                    
-                    carregarCatalogo();
-                    carregarMeusEmprestimos();
-                } else {
-                    alert(`Falha ao registrar empréstimo: ${respostaServidor.error || 'Erro desconhecido'}`);
+                    if (response.ok || response.status === 201) {
+                        alert('Empréstimo registrado com sucesso! O estoque foi atualizado.');
+                        fecharModalEmprestimo();
+                        
+                        // Atualiza as duas tabelas dinamicamente em tempo real
+                        carregarCatalogo();
+                        carregarMeusEmprestimos();
+                    } else {
+                        alert(`Falha ao registrar empréstimo: ${respostaServidor.error || 'Erro desconhecido'}`);
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição de empréstimo:', error);
+                    alert('Não foi possível conectar ao servidor para concluir o empréstimo.');
                 }
-            } catch (error) {
-                console.error('Erro na requisição de empréstimo:', error);
-                alert('Não foi possível conectar ao servidor para concluir o empréstimo.');
             }
         });
     }
+
+    // 5. Função Global para Devolução de Livros
+    window.devolverLivro = async (idEmprestimo, idLivro) => {
+        if (!confirm('Tem certeza que deseja devolver este livro e atualizar o acervo?')) return;
+
+        const hoje = new Date().toISOString().split('T')[0];
+        const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
+
+        // Monta o corpo com as informações necessárias para atualizar a rota PUT /emprestimo/:id
+        const dadosDevolucao = {
+            livro_id: Number(idLivro),
+            usuario_id: Number(idUsuarioLogado),
+            data_devolucao_real: hoje,
+            status_emprestimo: 'Devolvido'
+        };
+
+        try {
+            const response = await fetch(`${URL_BASE}/emprestimo/${idEmprestimo}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosDevolucao)
+            });
+
+            if (response.ok) {
+                alert('Livro devolvido com sucesso! O estoque foi reabastecido.');
+                
+                // Recarrega as tabelas da tela sem precisar dar reload total
+                carregarCatalogo();
+                carregarMeusEmprestimos();
+            } else {
+                const errData = await response.json();
+                alert(errData.error || 'Erro ao processar devolução no servidor.');
+            }
+        } catch (error) {
+            console.error('Erro na requisição de devolução:', error);
+            alert('Não foi possível conectar ao servidor para processar a devolução.');
+        }
+    };
 
     if (searchCatalog) {
         searchCatalog.addEventListener('input', (e) => {
@@ -210,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Inicialização da página
     carregarCatalogo();
     carregarMeusEmprestimos();
 });
