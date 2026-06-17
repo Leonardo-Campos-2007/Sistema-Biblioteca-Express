@@ -77,19 +77,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const todosEmprestimos = await response.json();
 
-            // DEBUG: remova esta linha após confirmar os campos corretos
-            console.log('Empréstimos recebidos do servidor:', todosEmprestimos);
-
             // ID do usuário obtido na sessão do login de forma limpa
             const idUsuarioLogado = usuarioLogado.id_usuario || usuarioLogado.id;
 
-            // CORREÇÃO: Filtro com cobertura ampla de nomes de campo possíveis
-            const meusEmprestimos = todosEmprestimos.filter(emp => {
-                const empUserId = Number(
-                    emp.usuario_id ?? emp.id_usuario ?? emp.userId ?? emp.user_id
-                );
-                return empUserId === Number(idUsuarioLogado);
-            });
+            // Filtra os registros unicamente deste leitor
+            const meusEmprestimos = todosEmprestimos.filter(emp => 
+                Number(emp.usuario_id) === Number(idUsuarioLogado) || 
+                Number(emp.id_usuario) === Number(idUsuarioLogado)
+            );
 
             myLoansTable.innerHTML = '';
 
@@ -142,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loanForm) loanForm.reset();
     };
 
-    // 4. Submissão do formulário totalmente adaptada ao seu backend original
+// 4. Submissão do formulário totalmente adaptada ao seu backend original
     if (loanForm) {
         loanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -154,16 +149,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Define a data de empréstimo como o dia de hoje (Formato: AAAA-MM-DD)
             const hoje = new Date().toISOString().split('T')[0];
 
+            // 🌟 CORREÇÃO AQUI: Chaves mapeadas idênticas ao destructuring do seu backend:
+            // const { livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, ... } = req.body;
             const dadosEmprestimo = {
                 livro_id: Number(idLivroDigitado),
                 usuario_id: Number(idUsuarioLogado),
                 data_emprestimo: hoje,
                 data_devolucao_prevista: dataDevolucaoDigitada,
-                data_devolucao_real: null,
+                data_devolucao_real: null,         // Como está iniciando, ainda não foi devolvido
                 status_emprestimo: 'Ativo'
             };
 
             try {
+                // 🌟 CORREÇÃO AQUI: Mudado para a rota correta do seu backend '/emprestimo'
                 const response = await fetch(`${URL_BASE}/emprestimo`, {
                     method: 'POST',
                     headers: {
@@ -175,16 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const respostaServidor = await response.json();
 
                 if (response.ok || response.status === 201) {
-                    // CORREÇÃO: Fecha modal primeiro, aguarda o banco persistir,
-                    // recarrega as tabelas e só então exibe o alerta
-                    fecharModalEmprestimo();
-
-                    await new Promise(resolve => setTimeout(resolve, 300));
-
-                    await carregarCatalogo();
-                    await carregarMeusEmprestimos();
-
                     alert('Empréstimo registrado com sucesso!');
+                    fecharModalEmprestimo();
+                    
+                    // Atualiza instantaneamente as tabelas do painel
+                    carregarCatalogo();
+                    carregarMeusEmprestimos();
                 } else {
                     alert(`Falha ao registrar empréstimo: ${respostaServidor.error || 'Erro desconhecido'}`);
                 }

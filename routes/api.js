@@ -78,47 +78,15 @@ router.put('/livro/:id_livro', (req, res) => {
 router.put('/emprestimo/:id_emprestimo', (req, res) => {
     const { id_emprestimo } = req.params;
     const { livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo } = req.body;
- 
-    // Busca o status atual antes de atualizar para comparar mudança
-    db.query('SELECT status_emprestimo, livro_id FROM emprestimo WHERE id_emprestimo = ?', [id_emprestimo], (err, rows) => {
-        if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
-        if (rows.length === 0) return res.status(404).json({ error: 'Empréstimo não encontrado' });
- 
-        const statusAnterior = rows[0].status_emprestimo;
-        const livroAnteriorId = rows[0].livro_id;
- 
-        db.query(
-            'UPDATE emprestimo SET livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucao_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? WHERE id_emprestimo = ?',
-            [livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, id_emprestimo],
-            (err, result) => {
-                if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
-                if (result.affectedRows === 0) return res.status(404).json({ error: 'Empréstimo não encontrado' });
- 
-                const statusNovo = status_emprestimo?.toLowerCase();
-                const statusOld = statusAnterior?.toLowerCase();
- 
-                // Se o livro mudou, devolve o antigo e desconta o novo
-                if (Number(livro_id) !== Number(livroAnteriorId)) {
-                    db.query('UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?', [livroAnteriorId]);
-                    db.query('UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ? AND quantidade_disponivel > 0', [livro_id]);
-                }
- 
-                // Se o status mudou para devolvido, aumenta a quantidade
-                const foiDevolvido = statusNovo === 'devolvido' && statusOld !== 'devolvido';
-                const foiReaberto  = statusOld === 'devolvido' && statusNovo !== 'devolvido';
- 
-                if (foiDevolvido) {
-                    db.query('UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?', [livro_id]);
-                }
- 
-                // Se reabrir um empréstimo que estava devolvido, desconta novamente
-                if (foiReaberto) {
-                    db.query('UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ? AND quantidade_disponivel > 0', [livro_id]);
-                }
- 
-                res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo });
-            }
-        );
+
+    db.query('UPDATE emprestimo SET livro_id = ?, usuario_id = ?, data_emprestimo = ?, data_devolucao_prevista = ?, data_devolucao_real = ?, status_emprestimo = ? WHERE id_emprestimo = ?', [livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, id_emprestimo], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Emprestimo não encontrado' });
+        }
+        res.status(200).json({ id_emprestimo: Number(id_emprestimo), livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo });
     });
 });
 
@@ -170,7 +138,7 @@ router.get('/listarLivros', (req, res) => {
 
 router.get('/listarEmprestimos', (req, res) => {
     db.query(
-        'SELECT e.usuario_id, id_emprestimo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, ' +
+        'SELECT id_emprestimo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, ' +
         'nome, ' +
         'id_livro, titulo ' +
         'FROM emprestimo e ' +
@@ -211,26 +179,13 @@ router.delete('/livro/:id_livro', (req, res) => {
 
 router.delete('/emprestimo/:id_emprestimo', (req, res) => {
     const { id_emprestimo } = req.params;
- 
-    // Busca o livro e status antes de deletar para devolver quantidade se necessário
-    db.query('SELECT livro_id, status_emprestimo FROM emprestimo WHERE id_emprestimo = ?', [id_emprestimo], (err, rows) => {
-        if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
-        if (rows.length === 0) return res.sendStatus(204);
- 
-        const { livro_id, status_emprestimo } = rows[0];
- 
-        db.query('DELETE FROM emprestimo WHERE id_emprestimo = ?', [id_emprestimo], (err) => {
-            if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
- 
-            // Só devolve a quantidade se o empréstimo ainda estava ativo (não devolvido)
-            const statusAtivo = status_emprestimo?.toLowerCase() !== 'devolvido';
-            if (statusAtivo) {
-                db.query('UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?', [livro_id]);
+    db.query('DELETE FROM emprestimo WHERE id_emprestimo = ?', [id_emprestimo],
+        (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro interno do servidor' });
             }
- 
             res.sendStatus(204);
         });
-    });
 });
 
 router.post('/validarLogin', (req, res) => {
@@ -251,35 +206,5 @@ router.post('/validarLogin', (req, res) => {
         res.status(200).json({ message: 'Login realizado com sucesso', usuario: results[0] });
     });
 });
-
-// ─── Rota: Diminuir quantidade ao emprestar ───────────────────────────────────
-router.put('/livro/:id/diminuir', (req, res) => {
-    const { id } = req.params;
-    db.query(
-        'UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ? AND quantidade_disponivel > 0',
-        [id],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
-            if (result.affectedRows === 0) return res.status(400).json({ error: 'Livro indisponível ou não encontrado' });
-            res.status(200).json({ mensagem: 'Quantidade diminuída com sucesso' });
-        }
-    );
-});
- 
-// ─── Rota: Aumentar quantidade ao devolver ────────────────────────────────────
-router.put('/livro/:id/aumentar', (req, res) => {
-    const { id } = req.params;
-    db.query(
-        'UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?',
-        [id],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: 'Erro interno do servidor' });
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Livro não encontrado' });
-            res.status(200).json({ mensagem: 'Quantidade aumentada com sucesso' });
-        }
-    );
-});
-
-
 
 module.exports = router;
