@@ -5,11 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loanModal = document.getElementById('loanModal');
     const loanForm = document.getElementById('loanForm');
     
-    // Recupera os dados do usuário autenticado do localStorage
     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
     const URL_BASE = typeof API_URL !== 'undefined' ? API_URL : 'http://localhost:3000';
 
-    // 1. Carrega e renderiza o catálogo completo de livros mapeando propriedades comuns
+    // 1. Carrega e renderiza o catálogo completo de livros
     async function carregarCatalogo(busca = '') {
         if (!catalogTable) return;
         try {
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let livros = await response.json();
 
-            // Filtro dinâmico por input de texto
             if (busca) {
                 livros = livros.filter(l => 
                     (l.titulo && l.titulo.toLowerCase().includes(busca.toLowerCase())) ||
@@ -29,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
             catalogTable.innerHTML = '';
 
             livros.forEach(livro => {
-                // Compatibilidade de propriedades com diferentes estruturas SQL padrão
                 const idLivro = livro.id_livro || livro.id;
                 const tituloLivro = livro.titulo;
                 const autorLivro = livro.autor;
@@ -63,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. Carrega estritamente os empréstimos pertencentes ao leitor logado (Exclusivos)
+    // 2. Carrega estritamente os empréstimos pertencentes ao leitor logado (Exclusivos com Diagnóstico)
     async function carregarMeusEmprestimos() {
         if (!myLoansTable) return;
         if (!usuarioLogado) {
@@ -72,19 +69,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // Diagnóstico inicial no console F12
+            console.log("=== DIAGNÓSTICO DE SESSÃO ===");
+            console.log("Objeto do Usuário Logado no LocalStorage:", usuarioLogado);
+
+            // Tenta achar qualquer variação de ID salva na sessão do usuário
+            const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
+            console.log("ID do Usuário Logado extraído para filtro:", idUsuarioLogado);
+
+            // 1. Busca os livros para traduzir IDs em Títulos
+            const resLivros = await fetch(`${URL_BASE}/listarLivros`);
+            const todosOsLivros = resLivros.ok ? await resLivros.json() : [];
+
+            // 2. Busca todos os empréstimos do banco
             const response = await fetch(`${URL_BASE}/listarEmprestimos`);
-            if (!response.ok) throw new Error('Erro ao buscar lista de empréstimos');
+            if (!response.ok) throw new Error('Erro ao buscar lista de empréstimos do servidor');
             
             const todosEmprestimos = await response.json();
+            console.log("Todos os empréstimos brutos vindos da API:", todosEmprestimos);
 
-            // ID do usuário obtido na sessão do login de forma limpa
-            const idUsuarioLogado = usuarioLogado.id_usuario || usuarioLogado.id;
+            
+            // Filtra os registros procurando qualquer variação de nome de coluna de ID que venha do banco
+            const meusEmprestimos = todosEmprestimos.filter(emp => {
+                // Tenta encontrar o ID do usuário de todas as formas possíveis que o SQL pode retornar
+                const idNoBanco = emp.usuario_id || emp.id_usuario || emp.id_usuarios || emp.usuario || emp.idLeitor;
+                
+                // Exibe no console para checarmos se a propriedade foi mapeada
+                console.log(`Comparando livro do banco (User ID: ${idNoBanco}) com o Logado (ID: ${idUsuarioLogado})`);
+                
+                return String(idNoBanco) === String(idUsuarioLogado);
+            });
 
-            // Filtra os registros unicamente deste leitor
-            const meusEmprestimos = todosEmprestimos.filter(emp => 
-                Number(emp.usuario_id) === Number(idUsuarioLogado) || 
-                Number(emp.id_usuario) === Number(idUsuarioLogado)
-            );
+            console.log("Empréstimos encontrados após o filtro por ID:", meusEmprestimos);
+            console.log("=============================");
 
             myLoansTable.innerHTML = '';
 
@@ -94,15 +111,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             meusEmprestimos.forEach(emp => {
-                const tituloLivro = emp.titulo || `Livro (ID: ${emp.livro_id || emp.id_livro})`;
-                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR') : '-';
-                const dataPrev = emp.data_devolucao_prevista || emp.data_devolucao ? new Date(emp.data_devolucao_prevista || emp.data_devolucao).toLocaleDateString('pt-BR') : '-';
+                const idDoLivroEmp = emp.livro_id || emp.id_livro;
+                const dadosDoLivro = todosOsLivros.find(l => Number(l.id_livro || l.id) === Number(idDoLivroEmp));
+                
+                const tituloLivro = emp.titulo || (dadosDoLivro ? dadosDoLivro.titulo : `Livro (Código ID: ${idDoLivroEmp})`);
+                
+                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
+                const dataPrev = (emp.data_devolucao_prevista || emp.data_devolucao) ? new Date(emp.data_devolucao_prevista || emp.data_devolucao).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
                 const statusAtual = emp.status_emprestimo || emp.status || 'Ativo';
 
-                // Aplica estilos visuais à tag de status baseado no retorno
                 let classeStatus = 'status-badge';
-                if(statusAtual.toLowerCase() === 'ativo' || statusAtual.toLowerCase() === 'pendente') classeStatus += ' ativo';
-                if(statusAtual.toLowerCase() === 'atrasado') classeStatus += ' atrasado';
+                if (statusAtual.toLowerCase() === 'ativo' || statusAtual.toLowerCase() === 'pendente') {
+                    classeStatus += ' ativo';
+                } else if (statusAtual.toLowerCase() === 'atrasado') {
+                    classeStatus += ' atrasado';
+                }
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -114,18 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 myLoansTable.appendChild(tr);
             });
         } catch (error) {
-            console.error('Erro ao puxar empréstimos do usuário:', error);
+            console.error('Erro crítico ao renderizar empréstimos:', error);
             myLoansTable.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Erro ao obter histórico de empréstimos.</td></tr>`;
         }
     }
 
-    // 3. Controle de abertura do Formulário/Modal de Empréstimo
+    // 3. Controle do Modal
     window.abrirModalEmprestimo = (id, titulo) => {
         if (!loanModal) return;
         document.getElementById('form_id_livro').value = id;
         document.getElementById('form_titulo_livro').value = titulo;
         
-        // Define uma data padrão mínima para o input de data (hoje)
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('form_data_devolucao').min = hoje;
         
@@ -137,36 +159,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loanForm) loanForm.reset();
     };
 
-// 4. Submissão do formulário totalmente adaptada ao seu backend original
+    // 4. Submissão do formulário
     if (loanForm) {
         loanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const idLivroDigitado = document.getElementById('form_id_livro').value;
             const dataDevolucaoDigitada = document.getElementById('form_data_devolucao').value;
-            const idUsuarioLogado = usuarioLogado.id_usuario || usuarioLogado.id;
+            const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
 
-            // Define a data de empréstimo como o dia de hoje (Formato: AAAA-MM-DD)
             const hoje = new Date().toISOString().split('T')[0];
 
-            // 🌟 CORREÇÃO AQUI: Chaves mapeadas idênticas ao destructuring do seu backend:
-            // const { livro_id, usuario_id, data_emprestimo, data_devolucao_prevista, ... } = req.body;
             const dadosEmprestimo = {
                 livro_id: Number(idLivroDigitado),
                 usuario_id: Number(idUsuarioLogado),
                 data_emprestimo: hoje,
                 data_devolucao_prevista: dataDevolucaoDigitada,
-                data_devolucao_real: null,         // Como está iniciando, ainda não foi devolvido
+                data_devolucao_real: null,
                 status_emprestimo: 'Ativo'
             };
 
             try {
-                // 🌟 CORREÇÃO AQUI: Mudado para a rota correta do seu backend '/emprestimo'
                 const response = await fetch(`${URL_BASE}/emprestimo`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dadosEmprestimo)
                 });
 
@@ -176,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Empréstimo registrado com sucesso!');
                     fecharModalEmprestimo();
                     
-                    // Atualiza instantaneamente as tabelas do painel
                     carregarCatalogo();
                     carregarMeusEmprestimos();
                 } else {
@@ -189,14 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Escuta o input de pesquisa e filtra em tempo real
     if (searchCatalog) {
         searchCatalog.addEventListener('input', (e) => {
             carregarCatalogo(e.target.value);
         });
     }
 
-    // Inicialização da interface
     carregarCatalogo();
     carregarMeusEmprestimos();
 });

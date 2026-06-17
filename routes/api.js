@@ -138,9 +138,9 @@ router.get('/listarLivros', (req, res) => {
 
 router.get('/listarEmprestimos', (req, res) => {
     db.query(
-        'SELECT id_emprestimo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status_emprestimo, ' +
-        'nome, ' +
-        'id_livro, titulo ' +
+        'SELECT e.id_emprestimo, e.data_emprestimo, e.data_devolucao_prevista, e.data_devolucao_real, e.status_emprestimo, ' +
+        'u.id_usuario, u.nome, ' + // 🌟 ADICIONADO u.id_usuario AQUI
+        'l.id_livro, l.titulo ' +
         'FROM emprestimo e ' +
         'JOIN usuario u ON e.usuario_id = u.id_usuario ' +
         'JOIN livro l ON e.livro_id = l.id_livro',
