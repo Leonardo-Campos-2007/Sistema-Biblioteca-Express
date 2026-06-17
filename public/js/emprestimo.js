@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dados.livro_id != 0 || dados.usuario_id != 0) {
                 try {
-                    // Sincronizado com a sua rota real de inserção: POST /emprestimo
+                    
                     const response = await fetch(`${API_URL}/emprestimo`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.editarEmprestimo = async (id_emprestimo) => {
         try {
-            // Buscamos a lista para capturar os dados do livro selecionado
+            
             const response = await fetch(`${API_URL}/listarEmprestimos`);
             const emprestimos = await response.json();
             const emprestimo = Array.isArray(emprestimos) ? emprestimos.find(e => e.id_emprestimo === id_emprestimo) : null;
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : '';
             document.getElementById('edit_status').value = emprestimo.status_emprestimo;
 
-            // Exibe o modal na tela mudando o estilo CSS
+            
             editLoanModal.style.display = 'flex';
         } catch (error) {
             console.error('Erro ao abrir edição:', error);
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Substitua ou adicione isto dentro do seu arquivo emprestimo.js
+    
 window.deletarEmprestimo = async (id_emprestimo) => {
     if (!confirm('Tem certeza que deseja excluir este empréstimo?')) return;
 
@@ -234,7 +234,7 @@ window.deletarEmprestimo = async (id_emprestimo) => {
 
         if (response.ok) {
             alert('Empréstimo excluído com sucesso!');
-            // Opcional: devolva o livro ao estoque aqui, se necessário
+           
             carregarEmprestimos(); 
         } else {
             alert('Erro ao excluir empréstimo.');
@@ -244,7 +244,7 @@ window.deletarEmprestimo = async (id_emprestimo) => {
     }
 };
 
-    // Funções para controle de fechamento do Modal
+   
     window.fecharLoanModalEdicao = () => {
         if (editLoanModal) {
             editLoanModal.style.display = 'none';
@@ -252,7 +252,7 @@ window.deletarEmprestimo = async (id_emprestimo) => {
         }
     };
 
-    // Executa as cargas iniciais a tela
+    
     carregarEmprestimos();
     carregarLeitores(leitorNome);
     carregarLivros(livroTitulo);

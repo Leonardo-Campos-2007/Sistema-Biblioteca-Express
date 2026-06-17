@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
     const URL_BASE = typeof API_URL !== 'undefined' ? API_URL : 'http://localhost:3000';
 
-    // 1. Carrega e renderiza o catálogo completo de livros
+    
     async function carregarCatalogo(busca = '') {
         if (!catalogTable) return;
         try {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. Carrega estritamente os empréstimos pertencentes ao leitor logado (Exclusivos com Diagnóstico)
+    
     async function carregarMeusEmprestimos() {
         if (!myLoansTable) return;
         if (!usuarioLogado) {
@@ -69,26 +69,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Diagnóstico inicial no console F12
+           
             console.log("=== DIAGNÓSTICO DE SESSÃO ===");
             console.log("Objeto do Usuário Logado no LocalStorage:", usuarioLogado);
 
-            // Tenta achar qualquer variação de ID salva na sessão do usuário
+            
             const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
             console.log("ID do Usuário Logado extraído para filtro:", idUsuarioLogado);
 
-            // 1. Busca os livros para traduzir IDs em Títulos (Caso a query falhe em trazer o join)
+
             const resLivros = await fetch(`${URL_BASE}/listarLivros`);
             const todosOsLivros = resLivros.ok ? await resLivros.json() : [];
 
-            // 2. Busca todos os empréstimos do banco
+            
             const response = await fetch(`${URL_BASE}/listarEmprestimos`);
             if (!response.ok) throw new Error('Erro ao buscar lista de empréstimos do servidor');
             
             const todosEmprestimos = await response.json();
             console.log("Todos os empréstimos brutos vindos da API:", todosEmprestimos);
 
-            // Filtra os registros procurando qualquer variação de nome de coluna de ID que venha do banco
+            
             const meusEmprestimos = todosEmprestimos.filter(emp => {
                 const idNoBanco = emp.id_usuario || emp.usuario_id || emp.id_usuarios || emp.usuario || emp.idLeitor;
                 console.log(`Comparando livro do banco (User ID: ${idNoBanco}) com o Logado (ID: ${idUsuarioLogado})`);
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let classeStatus = 'status-badge';
                 let botaoDevolver = '';
 
-                // Se o livro estiver Ativo ou Pendente, permite a devolução pelo painel
+                
                 if (statusAtual.toLowerCase() === 'ativo' || statusAtual.toLowerCase() === 'pendente') {
                     classeStatus += ' ativo';
                     botaoDevolver = `
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     `;
                 } else {
-                    classeStatus += ' encerrado'; // Para o status 'Devolvido'
+                    classeStatus += ' encerrado'; 
                 }
 
                 const tr = document.createElement('tr');
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. Controle do Modal
+
     window.abrirModalEmprestimo = (id, titulo) => {
         if (!loanModal) return;
         document.getElementById('form_id_livro').value = id;
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loanForm) loanForm.reset();
     };
 
-    // 4. Submissão do formulário (Pegar Livro Emprestado)
+
     if (loanForm) {
         loanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 status_emprestimo: 'Ativo'
             };
 
-            // Validação de segurança baseada na regra do seu código anterior
+
             if (dadosEmprestimo.livro_id !== 0 && dadosEmprestimo.usuario_id !== 0) {
                 try {
                     const response = await fetch(`${URL_BASE}/emprestimo`, {
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Empréstimo registrado com sucesso! O estoque foi atualizado.');
                         fecharModalEmprestimo();
                         
-                        // Atualiza as duas tabelas dinamicamente em tempo real
+
                         carregarCatalogo();
                         carregarMeusEmprestimos();
                     } else {
@@ -222,13 +222,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Função Global para Devolução de Livros
-// No seu arquivo do leitor (onde está a função devolverLivro)
+    
 window.devolverLivro = async (idEmprestimo, idLivro) => {
     if (!confirm('Deseja solicitar a devolução deste livro?')) return;
 
-    // Altere o status para 'Pendente' ou 'Solicitou Devolução'
-    // Assim, o bibliotecário saberá que precisa editar/finalizar este empréstimo
+    
     const dadosDevolucao = {
         status_emprestimo: 'Pendente de Devolução' 
     };
@@ -255,7 +253,7 @@ window.devolverLivro = async (idEmprestimo, idLivro) => {
         });
     }
 
-    // Inicialização da página
+  
     carregarCatalogo();
     carregarMeusEmprestimos();
 });

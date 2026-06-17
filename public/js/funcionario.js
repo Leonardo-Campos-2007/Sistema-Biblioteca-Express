@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // URL base do seu servidor Node.js (Ajuste o final caso use prefixos como /api ou /routes)
+    
     const API_URL = 'http://localhost:3000'; 
 
     const loginFuncionarioForm = document.getElementById('loginFuncionarioForm');
     const cadastroFuncionarioForm = document.getElementById('cadastroFuncionarioForm');
     
-    // ==========================================
-    // 1. PROCESSAMENTO DE LOGIN DO FUNCIONÁRIO
-    // ==========================================
+   
     if (loginFuncionarioForm) {
         loginFuncionarioForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ email: email, senha: senha })
                 });
 
-                // Evita quebra de leitura caso o retorno não seja JSON
+                
                 if (!response.ok) {
                     messageDiv.style.color = 'red';
                     if (response.status === 404) {
@@ -48,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageDiv.style.color = 'green';
                 messageDiv.textContent = 'Acesso autorizado! Redirecionando...';
 
-                // Armazena temporariamente os dados da sessão
+              
                 localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
 
                 setTimeout(() => {
@@ -63,9 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // 2. PROCESSAMENTO DE CADASTRO DO FUNCIONÁRIO
-    // ==========================================
+  
     if (cadastroFuncionarioForm) {
         cadastroFuncionarioForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -98,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                // Tratamento de erro robusto para evitar o erro do "<!DOCTYPE"
+      
                 if (!response.ok) {
                     messageDiv.style.color = 'red';
                     if (response.status === 404) {
@@ -115,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Se chegou aqui, a resposta é um JSON válido e deu status 201!
+            
                 const data = await response.json();
                 
                 messageDiv.style.color = 'green';
