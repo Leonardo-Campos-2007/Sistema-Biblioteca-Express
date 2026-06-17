@@ -223,6 +223,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Substitua ou adicione isto dentro do seu arquivo emprestimo.js
+window.deletarEmprestimo = async (id_emprestimo) => {
+    if (!confirm('Tem certeza que deseja excluir este empréstimo?')) return;
+
+    try {
+        const response = await fetch(`${API_URL}/emprestimo/${id_emprestimo}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Empréstimo excluído com sucesso!');
+            // Opcional: devolva o livro ao estoque aqui, se necessário
+            carregarEmprestimos(); 
+        } else {
+            alert('Erro ao excluir empréstimo.');
+        }
+    } catch (error) {
+        console.error('Erro ao deletar:', error);
+    }
+};
+
     // Funções para controle de fechamento do Modal
     window.fecharLoanModalEdicao = () => {
         if (editLoanModal) {

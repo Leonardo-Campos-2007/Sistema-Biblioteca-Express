@@ -56,32 +56,7 @@
             </div>
         </header>
 
-        <section id="dashboard" class="dashboard-section">
-            <h2>Estatísticas</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fa-solid fa-book"></i>
-                    <h3 id="totalBooks">0</h3>
-                    <p>Total de Livros</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fa-solid fa-check"></i>
-                    <h3 id="availableBooks">0</h3>
-                    <p>Disponíveis</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                    <h3 id="activeLoans">0</h3>
-                    <p>Empréstimos Ativos</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fa-solid fa-clock"></i>
-                    <h3 id="lateLoans">0</h3>
-                    <p>Atrasados</p>
-                </div>
-            </div>
-        </section>
-
+        
         <section id="livros" class="dashboard-section">
             <h2>Cadastro de Livros</h2>
             <form id="bookForm" class="book-form">
@@ -131,45 +106,7 @@
             </div>
         </section>
 
-        <section id="emprestimo" class="dashboard-section">
-            <h2>Cadastro de Empréstimo</h2>
-            <form id="loanForm" class="loan-form">
-                <div>
-                    <label for="leitorNome">Leitor</label>
-                    <select name="leitorNome" id="leitorNome"></select>
-                </div>
-                <div>
-                    <label for="livroTitulo">Livro</label>
-                    <select name="livroTitulo" id="livroTitulo"></select>
-                </div>
-                <div>
-                    <label for="dataEmprestimo">Data do empréstimo</label>
-                    <input type="date" id="dataEmprestimo" required>
-                </div>
-
-                <div>
-                    <label for="dataDevolucaoPrevista">Data de devolução prevista</label>
-                    <input type="date" id="dataDevolucaoPrevista" required>
-                </div>
-
-                <div>
-                    <label for="dataDevolucaoReal">Data de devolução real</label>
-                    <input type="date" id="dataDevolucaoReal">
-                </div>
-                <div>
-                    <label for="status">Status</label>
-                    <select name="statusEmprestimo" id="status">
-                        <option value="ativo">Ativo</option>
-                        <option value="devolvido">Devolvido</option>
-                        <option value="atrasado">Atrasado</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-primary">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    Salvar Empréstimo
-                </button>
-            </form>
-        </section>
+       
 
         <section id="emprestimos" class="dashboard-section">
             <h2>Catálogo de Empréstimos</h2>
