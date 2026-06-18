@@ -15,5 +15,4 @@ db.connect(err =>{
     
 });
 
-//exportar o módulo de conexão
 module.exports = db;
