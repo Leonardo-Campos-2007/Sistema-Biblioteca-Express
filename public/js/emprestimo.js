@@ -65,27 +65,37 @@ document.addEventListener('DOMContentLoaded', () => {
             loansTable.innerHTML = '';
 
             emprestimos.forEach(emp => {
-                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR') : '-';
-                const dataPrev = emp.data_devolucao_prevista ? new Date(emp.data_devolucao_prevista).toLocaleDateString('pt-BR') : '-';
+                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
+                const dataPrev = emp.data_devolucao_prevista ? new Date(emp.data_devolucao_prevista).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
+
+                const statusAtual = (emp.status_emprestimo || '').toLowerCase();
+                const jaDevolvido = !!emp.data_devolucao_real;
+
+                const botaoDevolver = jaDevolvido
+                    ? ''
+                    : `<button class="btn-danger btn-sm" onclick="devolverEmprestimo(${emp.id_emprestimo})" title="Marcar como devolvido">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                        </button>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${emp.nome}</td>
-                    <td>${emp.titulo}</td>
-                    <td>${dataEmp}</td>
-                    <td>${dataPrev}</td>
-                    <td><span class="status-badge">${emp.status_emprestimo}</span></td>
-                    <td>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            <button class="btn-primary btn-sm" onclick="editarEmprestimo(${emp.id_emprestimo})">
-                                    <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="btn-danger btn-sm" onclick="deletarEmprestimo(${emp.id_emprestimo})">
-                                    <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
+                <td>${emp.nome}</td>
+                <td>${emp.titulo}</td>
+                <td>${dataEmp}</td>
+                <td>${dataPrev}</td>
+                <td><span class="status-badge ${statusAtual}">${emp.status_emprestimo}</span></td>
+                <td>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <button class="btn-primary btn-sm" onclick="editarEmprestimo(${emp.id_emprestimo})">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        ${botaoDevolver}
+                        <button class="btn-danger btn-sm" onclick="deletarEmprestimo(${emp.id_emprestimo})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
                 loansTable.appendChild(tr);
             });
         } catch (error) {
@@ -109,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dados.livro_id != 0 || dados.usuario_id != 0) {
                 try {
-                    
+
                     const response = await fetch(`${API_URL}/emprestimo`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.editarEmprestimo = async (id_emprestimo) => {
         try {
-            
+
             const response = await fetch(`${API_URL}/listarEmprestimos`);
             const emprestimos = await response.json();
             const emprestimo = Array.isArray(emprestimos) ? emprestimos.find(e => e.id_emprestimo === id_emprestimo) : null;
@@ -166,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : '';
             document.getElementById('edit_status').value = emprestimo.status_emprestimo;
 
-            
+
             editLoanModal.style.display = 'flex';
         } catch (error) {
             console.error('Erro ao abrir edição:', error);
@@ -213,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                     location.reload();
-                    
+
                 } else {
                     alert('Erro ao atualizar dados no servidor.');
                 }
@@ -223,28 +233,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-window.deletarEmprestimo = async (id_emprestimo) => {
-    if (!confirm('Tem certeza que deseja excluir este empréstimo?')) return;
 
-    try {
-        const response = await fetch(`${API_URL}/emprestimo/${id_emprestimo}`, {
-            method: 'DELETE'
-        });
+    window.deletarEmprestimo = async (id_emprestimo) => {
+        if (!confirm('Tem certeza que deseja excluir este empréstimo?')) return;
 
-        if (response.ok) {
-            alert('Empréstimo excluído com sucesso!');
-           
-            carregarEmprestimos(); 
-        } else {
-            alert('Erro ao excluir empréstimo.');
+        try {
+            const response = await fetch(`${API_URL}/emprestimo/${id_emprestimo}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Empréstimo excluído com sucesso!');
+
+                carregarEmprestimos();
+            } else {
+                alert('Erro ao excluir empréstimo.');
+            }
+        } catch (error) {
+            console.error('Erro ao deletar:', error);
         }
-    } catch (error) {
-        console.error('Erro ao deletar:', error);
-    }
-};
+    };
 
-   
+
     window.fecharLoanModalEdicao = () => {
         if (editLoanModal) {
             editLoanModal.style.display = 'none';
@@ -252,7 +262,31 @@ window.deletarEmprestimo = async (id_emprestimo) => {
         }
     };
 
-    
+
+    window.devolverEmprestimo = async (idEmprestimo) => {
+        if (!confirm('Confirmar devolução deste livro?')) return;
+
+        try {
+            const response = await fetch(`${API_URL}/emprestimo/${idEmprestimo}/devolver`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                const resultado = await response.json();
+                alert(resultado.message || 'Devolução registrada com sucesso!');
+                carregarEmprestimos();
+            } else {
+                const erro = await response.json().catch(() => ({}));
+                alert(`Falha ao registrar devolução: ${erro.error || 'erro desconhecido'}`);
+            }
+        } catch (error) {
+            console.error('Erro ao devolver:', error);
+            alert('Erro ao conectar ao servidor para devolução.');
+        }
+    };
+
+
     carregarEmprestimos();
     carregarLeitores(leitorNome);
     carregarLivros(livroTitulo);

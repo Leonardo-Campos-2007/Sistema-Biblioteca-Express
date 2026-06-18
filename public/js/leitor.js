@@ -4,21 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchCatalog = document.getElementById('searchCatalog');
     const loanModal = document.getElementById('loanModal');
     const loanForm = document.getElementById('loanForm');
-    
+
     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
     const URL_BASE = typeof API_URL !== 'undefined' ? API_URL : 'http://localhost:3000';
 
-    
+
     async function carregarCatalogo(busca = '') {
         if (!catalogTable) return;
         try {
             const response = await fetch(`${URL_BASE}/listarLivros`);
             if (!response.ok) throw new Error('Erro ao buscar dados do catálogo');
-            
+
             let livros = await response.json();
 
             if (busca) {
-                livros = livros.filter(l => 
+                livros = livros.filter(l =>
                     (l.titulo && l.titulo.toLowerCase().includes(busca.toLowerCase())) ||
                     (l.autor && l.autor.toLowerCase().includes(busca.toLowerCase()))
                 );
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const qtdDisponivel = livro.quantidade_disponivel !== undefined ? livro.quantidade_disponivel : livro.quantidade;
 
                 const disponivel = qtdDisponivel > 0;
-                const statusBadge = disponivel 
-                    ? `<span class="status-badge ativo">Disponível (${qtdDisponivel})</span>` 
+                const statusBadge = disponivel
+                    ? `<span class="status-badge ativo">Disponível (${qtdDisponivel})</span>`
                     : `<span class="status-badge atrasado">Indisponível</span>`;
 
                 const tr = document.createElement('tr');
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    
+
     async function carregarMeusEmprestimos() {
         if (!myLoansTable) return;
         if (!usuarioLogado) {
@@ -69,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-           
+
             console.log("=== DIAGNÓSTICO DE SESSÃO ===");
             console.log("Objeto do Usuário Logado no LocalStorage:", usuarioLogado);
 
-            
+
             const idUsuarioLogado = usuarioLogado.usuario_id || usuarioLogado.id_usuario || usuarioLogado.id || usuarioLogado.id_usuarios;
             console.log("ID do Usuário Logado extraído para filtro:", idUsuarioLogado);
 
@@ -81,14 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const resLivros = await fetch(`${URL_BASE}/listarLivros`);
             const todosOsLivros = resLivros.ok ? await resLivros.json() : [];
 
-            
+
             const response = await fetch(`${URL_BASE}/listarEmprestimos`);
             if (!response.ok) throw new Error('Erro ao buscar lista de empréstimos do servidor');
-            
+
             const todosEmprestimos = await response.json();
             console.log("Todos os empréstimos brutos vindos da API:", todosEmprestimos);
 
-            
+
             const meusEmprestimos = todosEmprestimos.filter(emp => {
                 const idNoBanco = emp.id_usuario || emp.usuario_id || emp.id_usuarios || emp.usuario || emp.idLeitor;
                 console.log(`Comparando livro do banco (User ID: ${idNoBanco}) com o Logado (ID: ${idUsuarioLogado})`);
@@ -109,36 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const idEmprestimo = emp.id_emprestimo;
                 const idDoLivroEmp = emp.livro_id || emp.id_livro;
                 const dadosDoLivro = todosOsLivros.find(l => Number(l.id_livro || l.id) === Number(idDoLivroEmp));
-                
+
                 const tituloLivro = emp.titulo || (dadosDoLivro ? dadosDoLivro.titulo : `Livro (Código ID: ${idDoLivroEmp})`);
-                
-                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
-                const dataPrev = (emp.data_devolucao_prevista || emp.data_devolucao) ? new Date(emp.data_devolucao_prevista || emp.data_devolucao).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
+
+                const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
+                const dataPrev = (emp.data_devolucao_prevista || emp.data_devolucao) ? new Date(emp.data_devolucao_prevista || emp.data_devolucao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
                 const statusAtual = emp.status_emprestimo || emp.status || 'Ativo';
 
                 let classeStatus = 'status-badge';
-                let botaoDevolver = '';
-
-                
-                if (statusAtual.toLowerCase() === 'ativo' || statusAtual.toLowerCase() === 'pendente') {
-                    classeStatus += ' ativo';
-                    botaoDevolver = `
-                        <button class="btn-danger btn-sm" style="padding: 2px 8px; font-size: 0.8rem; cursor: pointer;" 
-                                onclick="devolverLivro(${idEmprestimo}, ${idDoLivroEmp})">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> Devolver
-                        </button>
-                    `;
-                } else if (statusAtual.toLowerCase() === 'atrasado') {
-                    classeStatus += ' atrasado';
-                    botaoDevolver = `
-                        <button class="btn-danger btn-sm" style="padding: 2px 8px; font-size: 0.8rem; cursor: pointer;" 
-                                onclick="devolverLivro(${idEmprestimo}, ${idDoLivroEmp})">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> Devolver
-                        </button>
-                    `;
-                } else {
-                    classeStatus += ' encerrado'; 
-                }
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -146,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${dataEmp}</td>
                     <td>${dataPrev}</td>
                     <td><span class="${classeStatus}">${statusAtual}</span></td>
-                    <td style="text-align: center;">${botaoDevolver || '-'}</td>
                 `;
                 myLoansTable.appendChild(tr);
             });
@@ -161,10 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!loanModal) return;
         document.getElementById('form_id_livro').value = id;
         document.getElementById('form_titulo_livro').value = titulo;
-        
+
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('form_data_devolucao').min = hoje;
-        
+
         loanModal.style.display = 'flex';
     };
 
@@ -207,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (response.ok || response.status === 201) {
                         alert('Empréstimo registrado com sucesso! O estoque foi atualizado.');
                         fecharModalEmprestimo();
-                        
+
 
                         carregarCatalogo();
                         carregarMeusEmprestimos();
@@ -222,30 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-window.devolverLivro = async (idEmprestimo, idLivro) => {
-    if (!confirm('Deseja solicitar a devolução deste livro?')) return;
-
-    
-    const dadosDevolucao = {
-        status_emprestimo: 'Pendente de Devolução' 
-    };
-
-    try {
-        const response = await fetch(`${URL_BASE}/emprestimo/${idEmprestimo}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dadosDevolucao)
-        });
-
-        if (response.ok) {
-            alert('Solicitação de devolução enviada! O bibliotecário irá processar.');
-            carregarMeusEmprestimos();
-        }
-    } catch (error) {
-        alert('Erro ao solicitar devolução.');
-    }
-};
 
     if (searchCatalog) {
         searchCatalog.addEventListener('input', (e) => {
@@ -253,7 +206,7 @@ window.devolverLivro = async (idEmprestimo, idLivro) => {
         });
     }
 
-  
+
     carregarCatalogo();
     carregarMeusEmprestimos();
 });
